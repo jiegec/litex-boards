@@ -84,6 +84,47 @@ _io = [
         Subsignal("reset_n", Pins("W4"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
+    # HDMI out
+    (
+        "hdmi_out",
+        0,
+        Subsignal(
+            "clk_p", Pins("C18"), IOStandard("TMDS_33")
+        ),
+        Subsignal(
+            "clk_n", Pins("C19"), IOStandard("TMDS_33")
+        ),
+        Subsignal(
+            "data0_p",
+            Pins("B15"),
+            IOStandard("TMDS_33"),
+        ),
+        Subsignal(
+            "data0_n",
+            Pins("B16"),
+            IOStandard("TMDS_33"),
+        ),
+        Subsignal(
+            "data1_p",
+            Pins("B21"),
+            IOStandard("TMDS_33"),
+        ),
+        Subsignal(
+            "data1_n",
+            Pins("A21"),
+            IOStandard("TMDS_33"),
+        ),
+        Subsignal(
+            "data2_p",
+            Pins("C22"),
+            IOStandard("TMDS_33"),
+        ),
+        Subsignal(
+            "data2_n",
+            Pins("B22"),
+            IOStandard("TMDS_33"),
+        ),
+    ),
 ]
 
 _connectors = []

@@ -11,6 +11,7 @@ from litex.gen import *
 from litex_boards.platforms import ma703fa_35t
 
 from litex.soc.cores.clock import *
+from litex.soc.cores.video import VideoS7HDMIPHY
 from litex.soc.interconnect.axi import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
@@ -20,6 +21,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
+
 
 # CRG ----------------------------------------------------------------------------------------------
 class _CRG(LiteXModule):
@@ -31,11 +33,15 @@ class _CRG(LiteXModule):
         self.cd_sys4x = ClockDomain()
         self.cd_sys4x_dqs = ClockDomain()
 
+        self.cd_hdmi = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
+
         # # #
 
         self.pll = pll = S7PLL(speedgrade=-1)
         self.comb += pll.reset.eq(~platform.request("cpu_reset_n") | self.rst)
-        pll.register_clkin(platform.request("clk50"), 50e6)
+        clk50 = platform.request("clk50")
+        pll.register_clkin(clk50, 50e6)
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
 
@@ -44,13 +50,23 @@ class _CRG(LiteXModule):
 
         self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
+        self.video_pll = video_pll = S7PLL(speedgrade=-1)
+        video_pll.register_clkin(clk50, 50e6)
+        video_pll.create_clkout(self.cd_hdmi, 40e6)
+        video_pll.create_clkout(self.cd_hdmi5x, 5 * 40e6)
+
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
 
 class BaseSoC(SoCCore):
     def __init__(
-        self, sys_clk_freq=100e6, with_led_chaser=True, with_ethernet=True, **kwargs
+        self,
+        sys_clk_freq=100e6,
+        with_led_chaser=True,
+        with_ethernet=True,
+        with_video_terminal=True,
+        **kwargs
     ):
         platform = ma703fa_35t.Platform()
 
@@ -86,6 +102,15 @@ class BaseSoC(SoCCore):
             )
             self.add_ethernet(phy=self.ethphy)
 
+        # Video ------------------------------------------------------------------------------------
+        if with_video_terminal:
+            self.videophy = VideoS7HDMIPHY(
+                platform.request("hdmi_out"), clock_domain="hdmi"
+            )
+            self.add_video_terminal(
+                phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi"
+            )
+
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
             self.leds = LedChaser(
@@ -108,12 +133,18 @@ def main():
     parser.add_argument(
         "--with-ethernet", action="store_true", help="Enable Ethernet support."
     )
+    parser.add_target_argument(
+        "--with-video-terminal",
+        action="store_true",
+        help="Enable Video Terminal (HDMI).",
+    )
     args = parser.parse_args()
 
     soc = BaseSoC(
         sys_clk_freq=args.sys_clk_freq,
         with_ethernet=args.with_ethernet,
-        **parser.soc_argdict
+        with_video_terminal=args.with_video_terminal,
+        **parser.soc_argdict,
     )
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
