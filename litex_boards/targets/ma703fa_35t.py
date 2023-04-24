@@ -18,6 +18,8 @@ from litex.soc.cores.led import LedChaser
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
+from litedram.modules import MT41K128M16
+from litedram.phy import s7ddrphy
 
 # CRG ----------------------------------------------------------------------------------------------
 class _CRG(LiteXModule):
@@ -25,6 +27,9 @@ class _CRG(LiteXModule):
         self.rst = Signal()
         self.cd_sys = ClockDomain()
         self.cd_idelay = ClockDomain()
+
+        self.cd_sys4x = ClockDomain()
+        self.cd_sys4x_dqs = ClockDomain()
 
         # # #
 
@@ -34,7 +39,10 @@ class _CRG(LiteXModule):
         pll.create_clkout(self.cd_sys, sys_clk_freq)
         pll.create_clkout(self.cd_idelay, 200e6)
 
-        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_sys)
+        pll.create_clkout(self.cd_sys4x, 4 * sys_clk_freq)
+        pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90)
+
+        self.submodules.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -42,7 +50,7 @@ class _CRG(LiteXModule):
 
 class BaseSoC(SoCCore):
     def __init__(
-        self, sys_clk_freq=50e6, with_led_chaser=True, with_ethernet=True, **kwargs
+        self, sys_clk_freq=100e6, with_led_chaser=True, with_ethernet=True, **kwargs
     ):
         platform = ma703fa_35t.Platform()
 
@@ -54,13 +62,27 @@ class BaseSoC(SoCCore):
             self, platform, sys_clk_freq, ident="LiteX SoC on MA703FA 35T", **kwargs
         )
 
+        # DDR3 SDRAM -------------------------------------------------------------------------------
+        if not self.integrated_main_ram_size:
+            self.ddrphy = s7ddrphy.A7DDRPHY(
+                platform.request("ddram"),
+                memtype="DDR3",
+                nphases=4,
+                sys_clk_freq=sys_clk_freq,
+            )
+            self.add_sdram(
+                "sdram",
+                phy=self.ddrphy,
+                module=MT41K128M16(sys_clk_freq, "1:4"),
+                l2_cache_size=kwargs.get("l2_size", 8192),
+            )
+
         # Ethernet -------------------------------------------------------------------------------------
         if with_ethernet:
             self.ethphy = LiteEthPHYRGMII(
                 clock_pads=self.platform.request("eth_clocks", 0),
                 pads=self.platform.request("eth", 0),
                 iodelay_clk_freq=200e6,
-                rx_delay=1e-9 # add additional delay for rx to work
             )
             self.add_ethernet(phy=self.ethphy)
 
@@ -81,7 +103,7 @@ def main():
         platform=ma703fa_35t.Platform, description="LiteX SoC on MA703FA 35T."
     )
     parser.add_target_argument(
-        "--sys-clk-freq", default=50e6, type=float, help="System clock frequency."
+        "--sys-clk-freq", default=100e6, type=float, help="System clock frequency."
     )
     parser.add_argument(
         "--with-ethernet", action="store_true", help="Enable Ethernet support."

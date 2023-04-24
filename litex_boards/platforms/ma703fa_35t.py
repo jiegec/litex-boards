@@ -9,7 +9,7 @@ from litex.build.xilinx import Xilinx7SeriesPlatform
 
 _io = [
     # Clk / Rst
-    ("clk50", 0, Pins("V4"), IOStandard("LVCMOS33")),
+    ("clk50", 0, Pins("V4"), IOStandard("LVCMOS15")),
     ("cpu_reset_n", 0, Pins("R14"), IOStandard("LVCMOS33")),
     # Leds
     ("user_led", 0, Pins("E21"), IOStandard("LVCMOS33")),
@@ -43,6 +43,46 @@ _io = [
         Subsignal("mdio", Pins("N17")),
         Subsignal("mdc", Pins("U18")),
         IOStandard("LVCMOS33"),
+    ),
+    # DDR3 SDRAM
+    (
+        "ddram",
+        0,
+        Subsignal(
+            "a",
+            Pins("AB3 AA6 Y3 Y2 AB6 AA3 Y7 AA4 AA8 Y4 Y9 AB7 AA5 W5"),
+            IOStandard("SSTL15"),
+        ),
+        Subsignal("ba", Pins("AB2 AB5 W2"), IOStandard("SSTL15")),
+        Subsignal("ras_n", Pins("V2"), IOStandard("SSTL15")),
+        Subsignal("cas_n", Pins("AA1"), IOStandard("SSTL15")),
+        Subsignal("we_n", Pins("W1"), IOStandard("SSTL15")),
+        Subsignal("cs_n", Pins("Y1"), IOStandard("SSTL15")),
+        Subsignal("dm", Pins("P2 J6"), IOStandard("SSTL15")),
+        Subsignal(
+            "dq",
+            Pins("P6 R1 M5 N4 N5 N2 M6 P1", "L3 J4 M3 K4 M2 K3 L4 L5"),
+            IOStandard("SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40"),
+        ),
+        Subsignal(
+            "dqs_p",
+            Pins("P5 M1"),
+            IOStandard("DIFF_SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40"),
+        ),
+        Subsignal(
+            "dqs_n",
+            Pins("P4 L1"),
+            IOStandard("DIFF_SSTL15"),
+            Misc("IN_TERM=UNTUNED_SPLIT_40"),
+        ),
+        Subsignal("clk_p", Pins("T5"), IOStandard("DIFF_SSTL15")),
+        Subsignal("clk_n", Pins("U5"), IOStandard("DIFF_SSTL15")),
+        Subsignal("cke", Pins("Y6"), IOStandard("SSTL15")),
+        Subsignal("odt", Pins("AB1"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("W4"), IOStandard("SSTL15")),
+        Misc("SLEW=FAST"),
     ),
 ]
 
