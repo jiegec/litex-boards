@@ -52,8 +52,9 @@ class _CRG(LiteXModule):
 
         self.video_pll = video_pll = S7PLL(speedgrade=-1)
         video_pll.register_clkin(clk50, 50e6)
-        video_pll.create_clkout(self.cd_hdmi, 40e6)
-        video_pll.create_clkout(self.cd_hdmi5x, 5 * 40e6)
+        pix_clk = 89.01e6
+        video_pll.create_clkout(self.cd_hdmi, pix_clk)
+        video_pll.create_clkout(self.cd_hdmi5x, 5 * pix_clk)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -108,7 +109,7 @@ class BaseSoC(SoCCore):
                 platform.request("hdmi_out"), clock_domain="hdmi"
             )
             self.add_video_terminal(
-                phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi"
+                phy=self.videophy, timings="1920x1080@30Hz", clock_domain="hdmi"
             )
 
         # Leds -------------------------------------------------------------------------------------
