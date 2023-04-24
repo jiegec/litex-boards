@@ -19,12 +19,6 @@ _io = [
     # Buttons
     ("user_btn", 0, Pins("A17"), IOStandard("LVCMOS33")),
 
-    # Serial in J15
-    ("serial", 0,
-        Subsignal("tx", Pins("T21"), IOStandard("LVCMOS33")),
-        Subsignal("rx", Pins("U21"), IOStandard("LVCMOS33")),
-    ),
-
     # VGA
     ("vga", 0,
         Subsignal("clk", Pins("G16")),

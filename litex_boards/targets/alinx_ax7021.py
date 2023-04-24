@@ -50,6 +50,9 @@ class BaseSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_vga=with_video_terminal)
 
         # SoCCore ----------------------------------------------------------------------------------
+        if kwargs.get("uart_name", "serial") == "serial":
+            # Defaults to JTAG-UART since UART is connected to PS instead of PL
+            kwargs["uart_name"] = "jtag_uart"
         SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7020", **kwargs)
 
         # Video ------------------------------------------------------------------------------------
