@@ -53,7 +53,7 @@ class BaseSoC(SoCCore):
         if kwargs.get("uart_name", "serial") == "serial":
             # Defaults to JTAG-UART since UART is connected to PS instead of PL
             kwargs["uart_name"] = "jtag_uart"
-        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7020", **kwargs)
+        SoCCore.__init__(self, platform, sys_clk_freq, ident="LiteX SoC on Alinx AX7021", **kwargs)
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal:
