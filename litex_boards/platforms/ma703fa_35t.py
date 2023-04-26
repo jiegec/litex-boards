@@ -125,6 +125,14 @@ _io = [
             IOStandard("TMDS_33"),
         ),
     ),
+    # SPI sdcard
+    ("spisdcard", 0,
+        Subsignal("clk",  Pins("W17")),
+        Subsignal("mosi", Pins("AA19")),
+        Subsignal("miso", Pins("V17")),
+        Subsignal("cs_n", Pins("AB20")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 _connectors = []

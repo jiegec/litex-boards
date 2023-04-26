@@ -139,6 +139,9 @@ def main():
         action="store_true",
         help="Enable Video Terminal (HDMI).",
     )
+    parser.add_argument(
+        "--with-spi-sdcard", action="store_true", help="Enable SPI-mode SDCard support."
+    )
     args = parser.parse_args()
 
     soc = BaseSoC(
@@ -147,6 +150,10 @@ def main():
         with_video_terminal=args.with_video_terminal,
         **parser.soc_argdict,
     )
+
+    if args.with_spi_sdcard:
+        soc.add_spi_sdcard()
+
     builder = Builder(soc, **parser.builder_argdict)
     if args.build:
         builder.build(**parser.toolchain_argdict)
