@@ -14,6 +14,7 @@ from litex.soc.cores.led import LedChaser
 
 from litedram.modules import MT18KSF1G72HZ
 from litedram.phy import s7ddrphy
+from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -90,8 +91,16 @@ class BaseSoC(SoCCore):
         leds_com = platform.request_all("user_led_com")
         self.comb += leds_com.eq(0xF)
 
-        # sdcard
+        # SDcard
         self.add_spi_sdcard()
+
+        # Ethernet
+        self.submodules.ethphy = LiteEthPHYRGMII(
+            clock_pads=self.platform.request("eth_clocks"),
+            pads=self.platform.request("eth"),
+            with_hw_init_reset=False,
+        )
+        self.add_ethernet(phy=self.ethphy)
 
 
 # Build --------------------------------------------------------------------------------------------

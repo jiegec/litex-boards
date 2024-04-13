@@ -66,6 +66,7 @@ _io = [
         Subsignal("reset_n", Pins("R4"), IOStandard("SSTL135")),
         Misc("SLEW=FAST"),
     ),
+    # SPI SDcard
     (
         "spisdcard",
         0,
@@ -75,6 +76,24 @@ _io = [
         Subsignal("miso", Pins("E19"), Misc("PULLUP True")),
         Misc("SLEW=FAST"),
         IOStandard("LVCMOS33"),
+    ),
+    # RGMII Ethernet
+    (
+        "eth_clocks",
+        0,
+        Subsignal("tx", Pins("E2")),
+        Subsignal("rx", Pins("H3")),
+        IOStandard("LVCMOS33"),
+    ),
+    (
+        "eth",
+        0,
+        Subsignal("mdio", Pins("A1"), IOStandard("LVCMOS33")),
+        Subsignal("mdc", Pins("B2"), IOStandard("LVCMOS33")),
+        Subsignal("rx_ctl", Pins("F3"), IOStandard("LVCMOS33")),
+        Subsignal("rx_data", Pins("G2 F4 G4 G3"), IOStandard("LVCMOS33")),
+        Subsignal("tx_ctl", Pins("B1"), IOStandard("LVCMOS33")),
+        Subsignal("tx_data", Pins("E3 D1 D2 C2"), IOStandard("LVCMOS33")),
     ),
 ]
 
