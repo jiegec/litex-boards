@@ -16,6 +16,8 @@ from litedram.modules import MT18KSF1G72HZ
 from litedram.phy import s7ddrphy
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from litex.soc.cores.video import VideoS7HDMIPHY
+from litespi.modules import W25Q128JV
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
 
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -123,6 +125,11 @@ class BaseSoC(SoCCore):
         )
         self.add_video_terminal(
             phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi"
+        )
+
+        # SPI NOR Flash
+        self.add_spi_flash(
+            mode="1x", module=W25Q128JV(Codes.READ_1_1_1), with_master=True
         )
 
 

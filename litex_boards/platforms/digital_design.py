@@ -109,6 +109,18 @@ _io = [
         Subsignal("data2_n", Pins("B13")),
         IOStandard("TMDS_33"),
     ),
+    # SPI NOR Flash
+    (
+        "spiflash",
+        0,
+        Subsignal("clk", Pins("Y21")),
+        Subsignal("cs_n", Pins("W20")),
+        Subsignal("mosi", Pins("AB22")),
+        Subsignal("miso", Pins("W21")),
+        Subsignal("wp", Pins("W22")),
+        Subsignal("hold", Pins("Y22")),
+        IOStandard("LVCMOS33"),
+    ),
 ]
 
 _connectors = []
