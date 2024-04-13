@@ -15,6 +15,7 @@ from litex.soc.cores.led import LedChaser
 from litedram.modules import MT18KSF1G72HZ
 from litedram.phy import s7ddrphy
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
+from litex.soc.cores.video import VideoS7HDMIPHY
 
 
 # CRG ----------------------------------------------------------------------------------------------
@@ -29,6 +30,10 @@ class _CRG(LiteXModule):
         self.cd_sys4x = ClockDomain()
         self.cd_sys4x_dqs = ClockDomain()
         self.cd_idelay = ClockDomain()
+
+        # hdmi
+        self.cd_hdmi = ClockDomain()
+        self.cd_hdmi5x = ClockDomain()
 
         # Clk/Rst
         clk100 = platform.request("clk100")
@@ -47,6 +52,16 @@ class _CRG(LiteXModule):
 
         # IdelayCtrl.
         self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+
+        # HDMI
+        # Create another PLL because the previous one has too many output clocks
+        self.pll2 = pll2 = S7PLL(speedgrade=-1)
+        self.comb += pll2.reset.eq(rst | self.rst)
+        pll2.register_clkin(clk100, 100e6)
+        # 800x600@60Hz, pixel clock 40MHz
+        # http://tinyvga.com/vga-timing/800x600@60Hz
+        pll2.create_clkout(self.cd_hdmi, 40e6, margin=0)
+        pll2.create_clkout(self.cd_hdmi5x, 200e6, margin=0)
 
 
 # BaseSoC ------------------------------------------------------------------------------------------
@@ -101,6 +116,14 @@ class BaseSoC(SoCCore):
             with_hw_init_reset=False,
         )
         self.add_ethernet(phy=self.ethphy)
+
+        # HDMI
+        self.videophy = VideoS7HDMIPHY(
+            platform.request("hdmi_out"), clock_domain="hdmi"
+        )
+        self.add_video_terminal(
+            phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi"
+        )
 
 
 # Build --------------------------------------------------------------------------------------------

@@ -95,6 +95,20 @@ _io = [
         Subsignal("tx_ctl", Pins("B1"), IOStandard("LVCMOS33")),
         Subsignal("tx_data", Pins("E3 D1 D2 C2"), IOStandard("LVCMOS33")),
     ),
+    # HDMI
+    (
+        "hdmi_out",
+        0,
+        Subsignal("clk_p", Pins("A15")),
+        Subsignal("clk_n", Pins("A16")),
+        Subsignal("data0_p", Pins("C14")),
+        Subsignal("data0_n", Pins("C15")),
+        Subsignal("data1_p", Pins("A13")),
+        Subsignal("data1_n", Pins("A14")),
+        Subsignal("data2_p", Pins("C13")),
+        Subsignal("data2_n", Pins("B13")),
+        IOStandard("TMDS_33"),
+    ),
 ]
 
 _connectors = []
